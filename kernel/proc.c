@@ -124,6 +124,7 @@ allocproc(void)
 
 found:
   p->pid = allocpid();
+  p->priority = 0;
   p->state = USED;
   p->cputime = 0;
 
@@ -276,6 +277,7 @@ kfork(void)
     return -1;
   }
   np->sz = p->sz;
+  np->priority = p->priority;
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
@@ -781,6 +783,7 @@ getprocs(uint64 addr)
     ps.pid = p->pid;
     ps.state = p->state;
     ps.size = p->sz;
+    ps.priority = p->priority;
     ps.ppid = p->parent ? p->parent->pid : 0;
     safestrcpy(ps.name, p->name, sizeof(ps.name));
     release(&p->lock);

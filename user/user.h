@@ -28,6 +28,8 @@ char *sys_sbrk(int, int);
 int pause(int);
 int uptime(void);
 int getprocs(struct pstat*);
+int getpriority(void);
+int setpriority(int);
 int sync(void);
 
 // ulib.c
