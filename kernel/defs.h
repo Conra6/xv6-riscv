@@ -100,6 +100,7 @@ void            userinit(void);
 int             kwait(uint64);
 int             kwait2(uint64, uint64);
 void            wakeup(void*);
+int             getprocs(uint64);
 void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);

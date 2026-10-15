@@ -761,3 +761,37 @@ procdump(void)
     printk("\n");
   }
 }
+
+// Fill the user's array of struct pstat with info on every
+// in-use process. Returns the number of processes, or -1 on error.
+int
+getprocs(uint64 addr)
+{
+  struct proc *p;
+  struct pstat ps;
+  int n = 0;
+
+  acquire(&wait_lock);  // protects p->parent; taken before p->lock
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state == UNUSED){
+      release(&p->lock);
+      continue;
+    }
+    ps.pid = p->pid;
+    ps.state = p->state;
+    ps.size = p->sz;
+    ps.ppid = p->parent ? p->parent->pid : 0;
+    safestrcpy(ps.name, p->name, sizeof(ps.name));
+    release(&p->lock);
+
+    if(copyout(myproc()->pagetable, myproc()->sz, addr + n * sizeof(ps),
+               (char *)&ps, sizeof(ps)) < 0){
+      release(&wait_lock);
+      return -1;
+    }
+    n++;
+  }
+  release(&wait_lock);
+  return n;
+}
