@@ -154,6 +154,7 @@ UPROGS=\
 	$U/_pexec\
 	$U/_ptest\
 	$U/_schedtest\
+	$U/_agetest\
 	$U/_zombie\
 	$U/_logstress\
 	$U/_forphan\

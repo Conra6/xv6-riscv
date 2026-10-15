@@ -17,7 +17,13 @@ struct proc proc[NPROC];
 static int
 effprio(struct proc *p)
 {
+#if AGING
+  // 1 point per tick waiting in the ready queue, capped
+  int e = p->priority + (int)(ticks - p->readytime);
+  return e > MAXEFFPRIORITY ? MAXEFFPRIORITY : e;
+#else
   return p->priority;
+#endif
 }
 #endif
 
