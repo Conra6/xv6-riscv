@@ -19,3 +19,4 @@
 #define RR        0   // round-robin (original xv6)
 #define PRIORITY  1   // priority-based
 #define SCHEDPOLICY PRIORITY
+#define AGING 1   // 1 = aging on, 0 = strict priority
