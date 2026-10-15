@@ -14,3 +14,8 @@
 #define USERSTACK   1                 // user stack pages
 #define MAXPRIORITY    49   // max priority a process may set
 #define MAXEFFPRIORITY 99   // max effective priority (with aging)
+
+// Scheduling policy, selected at compile time
+#define RR        0   // round-robin (original xv6)
+#define PRIORITY  1   // priority-based
+#define SCHEDPOLICY PRIORITY

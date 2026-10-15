@@ -153,6 +153,7 @@ UPROGS=\
 	$U/_ps\
 	$U/_pexec\
 	$U/_ptest\
+	$U/_schedtest\
 	$U/_zombie\
 	$U/_logstress\
 	$U/_forphan\

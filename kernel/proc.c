@@ -11,6 +11,16 @@ struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
 
+#if SCHEDPOLICY == PRIORITY
+// Effective priority used by the priority scheduler.
+// Task 4: just the base priority. Task 5 adds aging here.
+static int
+effprio(struct proc *p)
+{
+  return p->priority;
+}
+#endif
+
 struct proc *initproc;
 
 int nextpid = 1;
@@ -507,6 +517,7 @@ scheduler(void)
     intr_off();
 
     int found = 0;
+#if SCHEDPOLICY == RR
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if (p->state == RUNNABLE) {
@@ -527,6 +538,40 @@ scheduler(void)
       }
       release(&p->lock);
     }
+#else
+    // Priority scheduler: pick the RUNNABLE process with the highest
+    // effective priority. Ties go to the process that has waited longest.
+    struct proc *best = 0;
+    int bestprio = -1;
+    for (p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if (p->state == RUNNABLE) {
+        int e = effprio(p);
+        if (best == 0 || e > bestprio ||
+            (e == bestprio && p->readytime < best->readytime)) {
+          if (best)
+            release(&best->lock);
+          best = p;
+          bestprio = e;
+          continue;   // keep p->lock held while p is the best candidate
+        }
+      }
+      release(&p->lock);
+    }
+    if (best) {
+      p = best;
+      p->state = RUNNING;
+      c->proc = p;
+      swtch(&c->context, &p->context);
+
+      // Don't re-enable interrupts on release.
+      mycpu()->intena = 0;
+
+      c->proc = 0;
+      found = 1;
+      release(&p->lock);
+    }
+#endif
     if (found == 0) {
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
